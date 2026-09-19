@@ -96,9 +96,12 @@ composer test
 
 GitHub Actions installs dependencies, checks formatting, runs migrations and executes the test suite against PostgreSQL 17.
 
-## Architecture
+## Architecture and security
 
-See [docs/architecture.md](docs/architecture.md).
+- [Architecture](docs/architecture.md)
+- [Threat model](docs/threat-model.md)
+- [Security policy](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
 
 ## Historical project
 
