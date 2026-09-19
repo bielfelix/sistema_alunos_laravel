@@ -23,6 +23,10 @@ class Student extends Model
         'metadata',
     ];
 
+    protected $attributes = [
+        'status' => StudentStatus::Active->value,
+    ];
+
     protected function casts(): array
     {
         return [
