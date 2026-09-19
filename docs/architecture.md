@@ -49,3 +49,8 @@ Deleting an enrollment moves it to a cancelled state instead of deleting the rec
 Feature tests cover student creation, unique email validation, filtering, soft deletion, enrollment creation, duplicate prevention, capacity enforcement and inactive-course rejection.
 
 CI runs migrations and tests against PostgreSQL.
+
+
+## Architecture decisions
+
+- [ADR 0001: Serialize enrollment capacity checks with a row lock](adr/0001-enrollment-capacity-locking.md)
