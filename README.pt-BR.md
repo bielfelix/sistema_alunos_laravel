@@ -15,6 +15,12 @@ A aplicação é uma API em Laravel 13 com PostgreSQL, endpoints versionados, id
 - Laravel Pint
 - GitHub Actions
 
+## Domínio
+
+A API gerencia alunos, cursos e matrículas.
+
+Alunos e cursos usam soft delete. O cancelamento de uma matrícula preserva o registro em vez de removê-lo fisicamente.
+
 ## Integridade das matrículas
 
 A criação de uma matrícula acontece dentro de uma transação.
@@ -22,6 +28,8 @@ A criação de uma matrícula acontece dentro de uma transação.
 A linha do curso é bloqueada antes da verificação de capacidade. Isso evita que duas requisições concorrentes ocupem simultaneamente a última vaga disponível.
 
 O banco também mantém uma constraint única para o par aluno/curso.
+
+As regras de matrícula ficam em um pequeno serviço de aplicação. O controller permanece responsável apenas pelo fluxo HTTP.
 
 ## Execução local
 
@@ -33,6 +41,10 @@ php artisan migrate --seed
 php artisan serve
 ```
 
+## Testando a API
+
+O arquivo [requests.http](requests.http) contém requisições prontas para criação de aluno, curso, matrícula, consulta e cancelamento.
+
 ## Validação
 
 ```bash
@@ -40,7 +52,7 @@ composer lint
 composer test
 ```
 
-O GitHub Actions executa migrations e testes usando PostgreSQL.
+O GitHub Actions instala as dependências, valida o padrão de código, executa as migrations e roda a suíte de testes com PostgreSQL.
 
 ## Arquitetura
 
