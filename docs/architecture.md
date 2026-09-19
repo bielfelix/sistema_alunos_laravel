@@ -2,6 +2,31 @@
 
 This rebuild intentionally stays small enough to inspect during a technical review.
 
+## System view
+
+```mermaid
+flowchart LR
+    Client[API client] --> Routes[/api/v1 routes]
+    Routes --> Requests[Form Requests]
+    Requests --> Controllers[Controllers]
+
+    Controllers --> StudentModel[Student model]
+    Controllers --> CourseModel[Course model]
+    Controllers --> EnrollmentService[EnrollmentService]
+
+    EnrollmentService --> EnrollmentModel[Enrollment model]
+    EnrollmentService --> CourseModel
+
+    StudentModel --> PostgreSQL[(PostgreSQL)]
+    CourseModel --> PostgreSQL
+    EnrollmentModel --> PostgreSQL
+
+    Controllers --> Resources[API Resources]
+    Resources --> Client
+```
+
+The HTTP layer stays thin. Validation happens before controller logic, resources normalize output, Eloquent maps persistence, and enrollment rules live in a small application service.
+
 ## Boundaries
 
 The service exposes a versioned JSON API under `/api/v1`.
@@ -21,6 +46,38 @@ Public domain records use ULIDs instead of sequential IDs. The identifiers remai
 ## Enrollment consistency
 
 Course capacity is enforced inside a database transaction.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API
+    participant Service as EnrollmentService
+    participant DB as PostgreSQL
+
+    Client->>API: POST /api/v1/enrollments
+    API->>Service: validated student_id + course_id
+    Service->>DB: BEGIN
+    Service->>DB: SELECT course FOR UPDATE
+    DB-->>Service: locked course row
+    Service->>DB: check existing enrollment
+    Service->>DB: count active enrollments
+
+    alt course inactive
+        Service-->>API: validation error
+        Service->>DB: ROLLBACK
+    else duplicate enrollment
+        Service-->>API: validation error
+        Service->>DB: ROLLBACK
+    else capacity reached
+        Service-->>API: validation error
+        Service->>DB: ROLLBACK
+    else enrollment allowed
+        Service->>DB: INSERT enrollment
+        Service->>DB: COMMIT
+        Service-->>API: enrollment
+        API-->>Client: 201 Created
+    end
+```
 
 The course row is locked before capacity is checked. Competing enrollment requests for the same course are therefore serialized around the capacity decision.
 
@@ -46,10 +103,9 @@ Deleting an enrollment moves it to a cancelled state instead of deleting the rec
 
 ## Testing
 
-Feature tests cover student creation, unique email validation, filtering, soft deletion, enrollment creation, duplicate prevention, capacity enforcement and inactive-course rejection.
+Feature tests cover student creation, unique email validation, filtering, soft deletion, enrollment creation, duplicate prevention, capacity enforcement, cancellation, capacity release after cancellation and inactive-course rejection.
 
 CI runs migrations and tests against PostgreSQL.
-
 
 ## Architecture decisions
 
