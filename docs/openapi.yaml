@@ -1,0 +1,309 @@
+openapi: 3.1.0
+info:
+  title: Student Management API
+  version: 1.0.0
+  description: API for students, courses and enrollments.
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+paths:
+  /students:
+    get:
+      summary: List students
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive, graduated]
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+      responses:
+        '200':
+          description: Paginated student list
+    post:
+      summary: Create a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+      responses:
+        '201':
+          description: Student created
+        '422':
+          description: Validation failed
+  /students/{student}:
+    parameters:
+      - $ref: '#/components/parameters/StudentId'
+    get:
+      summary: Get a student
+      responses:
+        '200':
+          description: Student
+        '404':
+          description: Student not found
+    put:
+      summary: Update a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentUpdate'
+      responses:
+        '200':
+          description: Student updated
+        '422':
+          description: Validation failed
+    patch:
+      summary: Partially update a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentUpdate'
+      responses:
+        '200':
+          description: Student updated
+        '422':
+          description: Validation failed
+    delete:
+      summary: Soft delete a student
+      responses:
+        '204':
+          description: Student deleted
+
+  /courses:
+    get:
+      summary: List courses
+      parameters:
+        - in: query
+          name: active
+          schema:
+            type: boolean
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+      responses:
+        '200':
+          description: Paginated course list
+    post:
+      summary: Create a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseInput'
+      responses:
+        '201':
+          description: Course created
+        '422':
+          description: Validation failed
+  /courses/{course}:
+    parameters:
+      - $ref: '#/components/parameters/CourseId'
+    get:
+      summary: Get a course
+      responses:
+        '200':
+          description: Course
+        '404':
+          description: Course not found
+    put:
+      summary: Update a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseUpdate'
+      responses:
+        '200':
+          description: Course updated
+        '422':
+          description: Validation failed
+    patch:
+      summary: Partially update a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseUpdate'
+      responses:
+        '200':
+          description: Course updated
+        '422':
+          description: Validation failed
+    delete:
+      summary: Soft delete a course
+      responses:
+        '204':
+          description: Course deleted
+
+  /enrollments:
+    post:
+      summary: Create an enrollment
+      description: Locks the course row during capacity validation and creates the enrollment inside a database transaction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentInput'
+      responses:
+        '201':
+          description: Enrollment created
+        '422':
+          description: Validation or enrollment rule failed
+  /enrollments/{enrollment}:
+    parameters:
+      - $ref: '#/components/parameters/EnrollmentId'
+    get:
+      summary: Get an enrollment
+      responses:
+        '200':
+          description: Enrollment
+        '404':
+          description: Enrollment not found
+    delete:
+      summary: Cancel an enrollment
+      description: Preserves the enrollment record and changes its status to cancelled.
+      responses:
+        '204':
+          description: Enrollment cancelled
+
+components:
+  parameters:
+    StudentId:
+      in: path
+      name: student
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ulid'
+    CourseId:
+      in: path
+      name: course
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ulid'
+    EnrollmentId:
+      in: path
+      name: enrollment
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ulid'
+
+  schemas:
+    Ulid:
+      type: string
+      pattern: '^[0-9A-HJKMNP-TV-Z]{26}$'
+    StudentInput:
+      type: object
+      required: [first_name, last_name, email]
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        birth_date:
+          type: [string, 'null']
+          format: date
+        status:
+          type: string
+          enum: [active, inactive, graduated]
+        metadata:
+          type: [object, 'null']
+          additionalProperties: true
+    StudentUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        birth_date:
+          type: [string, 'null']
+          format: date
+        status:
+          type: string
+          enum: [active, inactive, graduated]
+        metadata:
+          type: [object, 'null']
+          additionalProperties: true
+    CourseInput:
+      type: object
+      required: [code, name]
+      properties:
+        code:
+          type: string
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: [string, 'null']
+          maxLength: 2000
+        capacity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 10000
+        active:
+          type: boolean
+    CourseUpdate:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: [string, 'null']
+          maxLength: 2000
+        capacity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 10000
+        active:
+          type: boolean
+    EnrollmentInput:
+      type: object
+      required: [student_id, course_id]
+      properties:
+        student_id:
+          $ref: '#/components/schemas/Ulid'
+        course_id:
+          $ref: '#/components/schemas/Ulid'
+        enrolled_at:
+          type: [string, 'null']
+          format: date-time
