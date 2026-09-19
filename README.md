@@ -16,7 +16,7 @@ This repository is intentionally new. It is not rewritten history and it is not 
 
 - PHP 8.3+
 - Laravel 13
-- PostgreSQL
+- PostgreSQL 17
 - PHPUnit
 - Laravel Pint
 - GitHub Actions
@@ -53,6 +53,8 @@ DELETE /api/v1/enrollments/{enrollment}
 
 For ready-to-run requests, see [requests.http](requests.http).
 
+The OpenAPI contract is available at [docs/openapi.yaml](docs/openapi.yaml).
+
 ## Enrollment consistency
 
 Enrollment creation runs inside a database transaction.
@@ -67,7 +69,15 @@ Requirements:
 
 - PHP 8.3 or newer
 - Composer 2
-- PostgreSQL
+- Docker with Docker Compose, or a local PostgreSQL 17 instance
+
+Start PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+Prepare and run the application:
 
 ```bash
 cp .env.example .env
@@ -84,7 +94,7 @@ composer lint
 composer test
 ```
 
-GitHub Actions installs dependencies, checks formatting, runs migrations and executes the test suite against PostgreSQL.
+GitHub Actions installs dependencies, checks formatting, runs migrations and executes the test suite against PostgreSQL 17.
 
 ## Architecture
 
