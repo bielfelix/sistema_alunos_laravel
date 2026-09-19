@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: student_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d student_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - student-management-postgres:/var/lib/postgresql/data
+
+volumes:
+  student-management-postgres:
