@@ -68,4 +68,45 @@ class EnrollmentApiTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors('course_id');
     }
+
+    public function test_it_cancels_an_enrollment_without_deleting_it(): void
+    {
+        $student = Student::factory()->create();
+        $course = Course::factory()->create(['capacity' => 1]);
+
+        $response = $this->postJson('/api/v1/enrollments', [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+        ])->assertCreated();
+
+        $enrollmentId = $response->json('data.id');
+
+        $this->deleteJson("/api/v1/enrollments/{$enrollmentId}")
+            ->assertNoContent();
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollmentId,
+            'status' => 'cancelled',
+        ]);
+    }
+
+    public function test_cancelled_enrollment_releases_course_capacity(): void
+    {
+        $course = Course::factory()->create(['capacity' => 1]);
+        $firstStudent = Student::factory()->create();
+        $secondStudent = Student::factory()->create();
+
+        $firstEnrollment = $this->postJson('/api/v1/enrollments', [
+            'student_id' => $firstStudent->id,
+            'course_id' => $course->id,
+        ])->assertCreated();
+
+        $this->deleteJson('/api/v1/enrollments/'.$firstEnrollment->json('data.id'))
+            ->assertNoContent();
+
+        $this->postJson('/api/v1/enrollments', [
+            'student_id' => $secondStudent->id,
+            'course_id' => $course->id,
+        ])->assertCreated();
+    }
 }
