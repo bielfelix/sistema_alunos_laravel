@@ -12,7 +12,7 @@ The domain contains three primary entities:
 - Course
 - Enrollment
 
-HTTP validation is handled by Form Requests. Responses are normalized through API Resources. Eloquent models own persistence mapping and relationships.
+HTTP validation is handled by Form Requests. Responses are normalized through API Resources. Eloquent models own persistence mapping and relationships. Enrollment business rules live in a small application service so the HTTP controller stays focused on transport concerns.
 
 ## Identifiers
 
