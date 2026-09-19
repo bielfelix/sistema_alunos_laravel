@@ -14,8 +14,7 @@ class EnrollmentController extends Controller
 {
     public function __construct(
         private readonly EnrollmentService $enrollments,
-    ) {
-    }
+    ) {}
 
     public function store(StoreEnrollmentRequest $request): JsonResponse
     {
