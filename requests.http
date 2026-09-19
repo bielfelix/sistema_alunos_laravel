@@ -1,0 +1,49 @@
+@baseUrl = http://127.0.0.1:8000/api/v1
+
+### Create a student
+POST {{baseUrl}}/students
+Content-Type: application/json
+Accept: application/json
+
+{
+  "first_name": "Ana",
+  "last_name": "Silva",
+  "email": "ana.silva@example.com",
+  "birth_date": "2001-03-10"
+}
+
+### List students
+GET {{baseUrl}}/students?status=active&per_page=15
+Accept: application/json
+
+### Create a course
+POST {{baseUrl}}/courses
+Content-Type: application/json
+Accept: application/json
+
+{
+  "code": "ENG-101",
+  "name": "Software Engineering",
+  "description": "Backend engineering fundamentals",
+  "capacity": 30,
+  "active": true
+}
+
+### Create an enrollment
+# Replace the IDs below with ULIDs returned by the API.
+POST {{baseUrl}}/enrollments
+Content-Type: application/json
+Accept: application/json
+
+{
+  "student_id": "01J00000000000000000000000",
+  "course_id": "01J00000000000000000000001"
+}
+
+### Fetch an enrollment
+GET {{baseUrl}}/enrollments/01J00000000000000000000002
+Accept: application/json
+
+### Cancel an enrollment
+DELETE {{baseUrl}}/enrollments/01J00000000000000000000002
+Accept: application/json

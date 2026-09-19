@@ -51,6 +51,8 @@ GET    /api/v1/enrollments/{enrollment}
 DELETE /api/v1/enrollments/{enrollment}
 ```
 
+For ready-to-run requests, see [requests.http](requests.http).
+
 ## Enrollment consistency
 
 Enrollment creation runs inside a database transaction.
