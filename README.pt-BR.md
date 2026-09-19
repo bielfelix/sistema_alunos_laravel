@@ -10,7 +10,7 @@ A aplicação é uma API em Laravel 13 com PostgreSQL, endpoints versionados, id
 
 - PHP 8.3+
 - Laravel 13
-- PostgreSQL
+- PostgreSQL 17
 - PHPUnit
 - Laravel Pint
 - GitHub Actions
@@ -33,6 +33,20 @@ As regras de matrícula ficam em um pequeno serviço de aplicação. O controlle
 
 ## Execução local
 
+Requisitos:
+
+- PHP 8.3 ou superior
+- Composer 2
+- Docker com Docker Compose, ou PostgreSQL 17 instalado localmente
+
+Suba o PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+Prepare e inicie a aplicação:
+
 ```bash
 cp .env.example .env
 composer install
@@ -45,6 +59,8 @@ php artisan serve
 
 O arquivo [requests.http](requests.http) contém requisições prontas para criação de aluno, curso, matrícula, consulta e cancelamento.
 
+A especificação OpenAPI está em [docs/openapi.yaml](docs/openapi.yaml).
+
 ## Validação
 
 ```bash
@@ -52,7 +68,7 @@ composer lint
 composer test
 ```
 
-O GitHub Actions instala as dependências, valida o padrão de código, executa as migrations e roda a suíte de testes com PostgreSQL.
+O GitHub Actions instala as dependências, valida o padrão de código, executa as migrations e roda a suíte de testes com PostgreSQL 17.
 
 ## Arquitetura
 
